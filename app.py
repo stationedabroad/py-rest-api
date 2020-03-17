@@ -10,11 +10,9 @@ api = Api(app)
 
 jwt = JWT(app, authenticate, identity) # /auth endpointx
 
-items = [
+items = []
 
-]
-
-# port
+# port & debug
 # env variable: FLASK_RUN_PORT=5001
 # env variable: FLASK_DEBUG=1
 
