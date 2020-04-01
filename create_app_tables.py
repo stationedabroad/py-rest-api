@@ -5,7 +5,7 @@ cursor = connection.cursor()
 
 create_users_table = """
 						create table if not exists users
-						(id INTEGER PRIMARY KEY, -- auto-increment column
+						(id INTEGER PRIMARY KEY, -- auto-increment column (have to use integer instead of INT)
 						 username text,
 						 password text)
 					 """	
