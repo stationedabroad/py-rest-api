@@ -37,6 +37,10 @@ class User:
 
 class UserRegister(Resource):
 	def post(self):
+
+		if User.find_by_username(data['username']:
+			return {"error": "user already exists"}, 409
+			
 		connection = sqlite3.connect(DB_NAME)
 		cursor = connection.cursor()
 
@@ -45,10 +49,11 @@ class UserRegister(Resource):
 		parser.add_argument('password', type=str, required=True, help='password cannot be empty')
 		data = parser.parse_args()
 
+		
 		query = "insert into users(username, password) values (?, ?)"
 		cursor.execute(query, (data['username'], data['password']))
 
 		connection.commit()
 		connection.close()
-
+		
 		return {"message": "user creation successful"}, 201
