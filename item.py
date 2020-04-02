@@ -53,9 +53,10 @@ class Item(Resource):
             status = 201
         if mode == 'PUT':
             query = """
-                update into items values ('{name}', {price});
+                update items set price = {price}
+                where name = '{name}';
                     """
-            status = 000
+            status = 204
         query = query.format(name=name, price=data['price'])
         connection = sqlite3.connect(DB_NAME)
         cursor = connection.cursor()
@@ -74,10 +75,18 @@ class Item(Resource):
 	    return parser
 
     def delete(self, name):
-        pass
-		# global items
-		# items = list(filter(lambda n: n['name'] != name, items))
-		# return {'item': f'{name} item deleted'}, 200
+        if not self.item_by_name(name):
+            return {'message': 'item with name {} does not exist'.format(name)}, 400            
+        query = """
+                    delete from items where name = '{}'
+                """.format(name)
+        connection = sqlite3.connect(DB_NAME)
+        cursor = connection.cursor()
+        cursor.execute(query)
+
+        connection.commit()
+        connection.close()
+        return {'message': 'item {} successfully deleted'.format(name)}, 200
 
 
 class ItemList(Resource):
