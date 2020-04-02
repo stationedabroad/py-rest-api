@@ -1,6 +1,8 @@
 import sqlite3
 
-connection = sqlite3.connect('appdata.db')
+DB_NAME = 'appdata.db'
+
+connection = sqlite3.connect(DB_NAME)
 cursor = connection.cursor()
 
 create_users_table = """
@@ -9,6 +11,22 @@ create_users_table = """
 						 username text,
 						 password text)
 					 """	
-cursor.execute(create_users_table)
+
+create_items_table = """
+						create table if not exists items
+						(name text primary key,
+						 price real)
+					 """
+tables = [
+	create_users_table,
+	create_items_table,
+]
+
+for table in tables:
+	cursor.execute(table)
+
+# dummy entries
+# cursor.execute("insert into items values ('item1', 400.50)")	
+
 connection.commit()
 connection.close()

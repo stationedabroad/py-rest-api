@@ -38,9 +38,9 @@ class User:
 class UserRegister(Resource):
 	def post(self):
 
-		if User.find_by_username(data['username']:
+		if User.find_by_username(data['username']):
 			return {"error": "user already exists"}, 409
-			
+
 		connection = sqlite3.connect(DB_NAME)
 		cursor = connection.cursor()
 
