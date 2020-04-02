@@ -9,10 +9,9 @@ class Item(Resource):
     # def __init__(self, name, price):
     #     self.name = name
     #     self.price = price
-    
-    @jwt_required()
-    def get(self, name):
-        print("entered!!!")
+
+    @classmethod
+    def item_by_name(cls, name):
         connection = sqlite3.connect(DB_NAME)
         cursor = connection.cursor()
         query = """
@@ -23,16 +22,22 @@ class Item(Resource):
         result = cursor.execute(query)
         item = result.fetchone()
         connection.close()
-
+        return item
+    
+    @jwt_required()
+    def get(self, name):
+        item = Item.item_by_name(name)
         if item:
             return {'item': item}, 200
         return {'message': 'itme not found'}, 404
     
     def post(self, name):
+        if Item.item_by_name(name):
+            return {'message': 'item with name {} already exists'.format(name)}, 400
         parser = self.get_payload_parser([('price', float)])
         data = parser.parse_args()
-        msg, status = self.create_update_item(name, data, 'POST')
-        return msg, status
+        item, status = self.create_update_item(name, data, 'POST')
+        return item, status
     
     def put(self, name):
 	    parser = self.get_payload_parser([('price', float)])
@@ -41,16 +46,26 @@ class Item(Resource):
 	    return msg, status
 
     def create_update_item(self, name, data, mode):
-	    item = next(filter(lambda n: n['name'] == name, items), None)
-        # if item:
-        #     if mode == 'PUT':
-		#     	item.update(data)
-		# 	    return {'item': f'{name} updated with price'}, 200
-    	# 	if mode == 'POST':
-	    # 		return {'item': f'{name} already exists'}, 403				
-    	# item = {'name': name, 'price': data['price']}
-	    # items.append(item)
-    	# return item, 201		
+        if mode == 'POST':
+            query = """
+                insert into items values ('{name}', {price});
+                    """
+            status = 201
+        if mode == 'PUT':
+            query = """
+                update into items values ('{name}', {price});
+                    """
+            status = 000
+        query = query.format(name=name, price=data['price'])
+        connection = sqlite3.connect(DB_NAME)
+        cursor = connection.cursor()
+        cursor.execute(query)
+
+        connection.commit()
+        connection.close()
+        return {'item': 
+                    {'name': name, 'price': data['price']}
+               }, status
 
     def get_payload_parser(self, req_args: list, required=True):
 	    parser = reqparse.RequestParser()
@@ -66,7 +81,5 @@ class Item(Resource):
 
 
 class ItemList(Resource):
-	def get(self):
-		if items:
-			return items, 200
-		return {'items': None}, 404
+    def get(self):
+        return {'item': None}
