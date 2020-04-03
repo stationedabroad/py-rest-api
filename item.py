@@ -40,10 +40,13 @@ class Item(Resource):
         return item, status
     
     def put(self, name):
-	    parser = self.get_payload_parser([('price', float)])
-	    data = parser.parse_args()
-	    msg, status = self.create_update_item(name, data, 'PUT')
-	    return msg, status
+        mode = 'PUT'
+        if not Item.item_by_name(name):
+            mode = 'POST'
+        parser = self.get_payload_parser([('price', float)])
+        data = parser.parse_args()
+        msg, status = self.create_update_item(name, data, mode)
+        return msg, status
 
     def create_update_item(self, name, data, mode):
         if mode == 'POST':
@@ -91,4 +94,19 @@ class Item(Resource):
 
 class ItemList(Resource):
     def get(self):
-        return {'item': None}
+        query = """
+            select * from items;
+                """
+        connection = sqlite3.connect(DB_NAME)
+        cursor = connection.cursor()
+        results = cursor.execute(query)
+        items = self.format_items(results.fetchall())
+        connection.commit()
+        connection.close()        
+        return {'items': items}
+
+    def format_items(self, items):
+        item_list = []
+        for item in items:
+            item_list.append({'name': item[0], 'price': item[1]})
+        return item_list
