@@ -103,7 +103,7 @@ class ItemList(Resource):
         items = self.format_items(results.fetchall())
         connection.commit()
         connection.close()        
-        return {'items': items}
+        return {'items': items}, 200
 
     def format_items(self, items):
         item_list = []
