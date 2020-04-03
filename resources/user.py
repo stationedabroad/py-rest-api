@@ -1,44 +1,14 @@
 import sqlite3
+
 from flask_restful import Resource, reqparse
+from models.user import UserModel
 
 DB_NAME = 'appdata.db'
-
-class User:
-	def __init__(self, _id, username, password):
-		self.id = _id
-		self.username = username
-		self.password = password
-
-	@classmethod
-	def find_by_username(cls, username):
-		connection = sqlite3.connect(DB_NAME)
-		cursor = connection.cursor()
-		
-		query = "select * from users where username = \"{}\"".format(username)
-		results = cursor.execute(query)
-		user = results.fetchone()
-		connection.close()
-		if user:
-			return cls(*user)
-		return None
-
-	@classmethod
-	def find_by_id(cls, _id):
-		connection = sqlite3.connect(DB_NAME)
-		cursor = connection.cursor()
-		
-		query = "select * from users where id = \"{}\"".format(_id)
-		results = cursor.execute(query)
-		user = results.fetchone()
-		connection.close()
-		if user:
-			return cls(*user)
-		return None
 
 class UserRegister(Resource):
 	def post(self):
 
-		if User.find_by_username(data['username']):
+		if UserModel.find_by_username(data['username']):
 			return {"error": "user already exists"}, 409
 
 		connection = sqlite3.connect(DB_NAME)
