@@ -10,13 +10,13 @@ class Item(Resource):
     
     @jwt_required()
     def get(self, name):
-        item = Item.find_by_name(name)
+        item = ItemModel.find_by_name(name)
         if item:
-            return {'item': item}, 200
+            return item.as_json(), 200
         return {'message': 'itme not found'}, 404
     
     def post(self, name):
-        if Item.find_by_name(name):
+        if ItemModel.find_by_name(name):
             return {'message': 'item with name {} already exists'.format(name)}, 400
         parser = self.get_payload_parser([('price', float)])
         data = parser.parse_args()
