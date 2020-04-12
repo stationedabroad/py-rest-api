@@ -1,13 +1,14 @@
-import sqlite3
+# import sqlite3
 from sqldb import db
 
 DB_NAME = 'appdata.db'
 
 class ItemModel(db.Model):
     __tablename__ = 'items'
+    __table_args__ = {'sqlite_autoincrement': True}
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, unique=True)
+    name = db.Column(db.String(80))
     price = db.Column(db.Float(precision=2))
 
     def __init__(self, name, price=0.0):
@@ -15,43 +16,16 @@ class ItemModel(db.Model):
         self.price = price
 
     def as_json(self):
-        return {'name': self.name,
-                'price': self.price}   
+        return {'name': self.name, 'price': self.price}   
 
     @classmethod
     def find_by_name(cls, name):
-        connection = sqlite3.connect(DB_NAME)
-        cursor = connection.cursor()
-        query = """
-            select * 
-            from items
-            where name = '{item_name}';
-        """.format(item_name=name)
-        result = cursor.execute(query)
-        item = result.fetchone()
-        connection.close()
-        if item:
-            return cls(*item)
-        return None
+        return cls.query.filter_by(name=name).first()
 
-    def create_update_item(self, mode):
-        try:
-            if mode == 'POST':
-                query = """
-                    insert into items values ('{name}', {price});
-                        """
-            if mode == 'PUT':
-                query = """
-                    update items set price = {price}
-                    where name = '{name}';
-                        """
-            query = query.format(name=self.name, price=self.price)
-            connection = sqlite3.connect(DB_NAME)
-            cursor = connection.cursor()
-            cursor.execute(query)
+    def create_update_item(self):
+        db.session.add(self)
+        db.session.commit()
 
-            connection.commit()
-            connection.close()
-        except:
-            return None
-        return self
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()

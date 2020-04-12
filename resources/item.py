@@ -21,22 +21,19 @@ class Item(Resource):
         parser = self.get_payload_parser([('price', float)])
         data = parser.parse_args()
         new_item = ItemModel(name, data['price'])
-        item_posted = new_item.create_update_item('POST')
-        if item_posted:
-            return item_posted.as_json(), 201
-        return 500
+        saved_item = new_item.as_json()
+        new_item.create_update_item()
+        return saved_item, 201
     
     def put(self, name):
-        mode, status = 'PUT', 204
-        if not ItemModel.find_by_name(name):
-            mode, status = 'POST', 201
+        item = ItemModel.find_by_name(name)
+        if not item:
+            return self.post(name)
         parser = self.get_payload_parser([('price', float)])
         data = parser.parse_args()
-        updated_item = ItemModel(name, data['price'])
-        item_updated = updated_item.create_update_item(mode)
-        if item_updated:
-            return updated_item.as_json(), status
-        return 500
+        item.price = data['price']
+        item.create_update_item()
+        return item.as_json(), 204
 
     def get_payload_parser(self, req_args: list, required=True):
 	    parser = reqparse.RequestParser()
@@ -45,19 +42,20 @@ class Item(Resource):
 	    return parser
 
     def delete(self, name):
-        item_delete = ItemModel.find_by_name(name)
-        if not item_delete:
-            return {'message': 'item with name {} does not exist'.format(name)}, 400            
-        query = """
-                    delete from items where name = '{}'
-                """.format(item_delete.name)
-        connection = sqlite3.connect(DB_NAME)
-        cursor = connection.cursor()
-        cursor.execute(query)
+        item = ItemModel.find_by_name(name)
+        if not item:
+            return {'message': 'item with name {} does not exist'.format(name)}, 400
+        item.delete()
+        # query = """
+        #             delete from items where name = '{}'
+        #         """.format(item_delete.name)
+        # connection = sqlite3.connect(DB_NAME)
+        # cursor = connection.cursor()
+        # cursor.execute(query)
 
-        connection.commit()
-        connection.close()
-        return {'message': 'item {} successfully deleted'.format(item_delete.name)}, 200
+        # connection.commit()
+        # connection.close()
+        return {'message': 'item {} successfully deleted'.format(item.name)}, 200
 
 
 class ItemList(Resource):
@@ -76,5 +74,5 @@ class ItemList(Resource):
     def format_items(self, items):
         item_list = []
         for item in items:
-            item_list.append({'name': item[0], 'price': item[1]})
+            item_list.append({'name': item[1], 'price': item[2]})
         return item_list
