@@ -20,6 +20,7 @@ class ItemModel(db.Model):
 
     @classmethod
     def find_by_name(cls, name):
+        print('ITEM MODEL --> ', cls.query.filter_by(name=name))
         return cls.query.filter_by(name=name).first()
 
     def create_update_item(self):

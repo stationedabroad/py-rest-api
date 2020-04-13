@@ -13,7 +13,7 @@ class Item(Resource):
         item = ItemModel.find_by_name(name)
         if item:
             return item.as_json(), 200
-        return {'message': 'itme not found'}, 404
+        return {'message': 'item not found'}, 404
     
     def post(self, name):
         if ItemModel.find_by_name(name):
