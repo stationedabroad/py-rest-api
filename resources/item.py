@@ -21,9 +21,9 @@ class Item(Resource):
         parser = self.get_payload_parser([('price', float)])
         data = parser.parse_args()
         new_item = ItemModel(name, data['price'])
-        saved_item = new_item.as_json()
-        new_item.create_update_item()
-        return saved_item, 201
+        new_item.create()
+        saved_item = ItemModel.find_by_name(name)
+        return saved_item.as_json(), 201
     
     def put(self, name):
         item = ItemModel.find_by_name(name)
@@ -32,8 +32,9 @@ class Item(Resource):
         parser = self.get_payload_parser([('price', float)])
         data = parser.parse_args()
         item.price = data['price']
-        item.create_update_item()
-        return item.as_json(), 204
+        item.update()
+        updated_item = ItemModel.find_by_name(name)
+        return updated_item.as_json(), 204
 
     def get_payload_parser(self, req_args: list, required=True):
 	    parser = reqparse.RequestParser()

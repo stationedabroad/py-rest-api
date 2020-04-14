@@ -14,7 +14,7 @@ create_users_table = """
 
 create_items_table = """
 						create table if not exists items
-						(id primary key,
+						(id integer primary key,
 						 name text,
 						 price real)
 					 """
