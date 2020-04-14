@@ -45,19 +45,10 @@ class Item(Resource):
         if not item:
             return {'message': 'item with name {} does not exist'.format(name)}, 400
         item.delete()
-        # query = """
-        #             delete from items where name = '{}'
-        #         """.format(item_delete.name)
-        # connection = sqlite3.connect(DB_NAME)
-        # cursor = connection.cursor()
-        # cursor.execute(query)
-
-        # connection.commit()
-        # connection.close()
         return {'message': 'item {} successfully deleted'.format(item.name)}, 200
 
 
 class ItemList(Resource):
     def get(self):       
-        items = [item.as_json() for item in ItemModel.query.all()]
-        return {'items':items }, 200
+        items = list(map(lambda item: item.as_json(), ItemModel.query.all()))
+        return {'items': items }, 200
