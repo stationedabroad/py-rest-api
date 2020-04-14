@@ -10,33 +10,25 @@ class UserModel(db.Model):
 	username = db.Column(db.String(80))
 	password = db.Column(db.String(20))
 
-	def __init__(self, _id, username, password):
-		self.id = _id
+	def __init__(self, username, password):
 		self.username = username
 		self.password = password
 
 	@classmethod
 	def find_by_username(cls, username):
-		connection = sqlite3.connect('appdata.db')
-		cursor = connection.cursor()
-		
-		query = "select * from users where username = \"{}\"".format(username)
-		results = cursor.execute(query)
-		user = results.fetchone()
-		connection.close()
-		if user:
-			return cls(*user)
-		return None
+		return cls.query.filter_by(username=username).first()
 
 	@classmethod
 	def find_by_id(cls, _id):
-		connection = sqlite3.connect(DB_NAME)
-		cursor = connection.cursor()
-		
-		query = "select * from users where id = \"{}\"".format(_id)
-		results = cursor.execute(query)
-		user = results.fetchone()
-		connection.close()
-		if user:
-			return cls(*user)
-		return None
+		return cls.query.filter_by(id=_id).first()
+
+	def create(self):
+		db.session.add(self)		
+		db.session.commit()
+
+	def update(self):
+		self.create()
+
+	def delete(self):
+		self.query.filter_by(username=self.username).delete()
+		db.session.commit()
