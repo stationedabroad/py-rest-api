@@ -1,4 +1,3 @@
-import sqlite3
 from sqldb import db
 
 DB_NAME = 'appdata.db'

@@ -1,4 +1,3 @@
-from create_app_tables import DB_NAME
 from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
 
@@ -16,9 +15,9 @@ class Item(Resource):
     def post(self, name):
         if ItemModel.find_by_name(name):
             return {'message': 'item with name {} already exists'.format(name)}, 400
-        parser = self.get_payload_parser([('price', float)])
+        parser = self.get_payload_parser([('price', float), ('store_id', int)])
         data = parser.parse_args()
-        new_item = ItemModel(name, data['price'])
+        new_item = ItemModel(name, data['price'], data['store_id'])
         new_item.create()
         saved_item = ItemModel.find_by_name(name)
         return saved_item.as_json(), 201
@@ -27,9 +26,10 @@ class Item(Resource):
         item = ItemModel.find_by_name(name)
         if not item:
             return self.post(name)
-        parser = self.get_payload_parser([('price', float)])
+        parser = self.get_payload_parser([('price', float), ('store_id', int)])
         data = parser.parse_args()
         item.price = data['price']
+        item.store_id = data['store_id']
         item.update()
         updated_item = ItemModel.find_by_name(name)
         return updated_item.as_json(), 204
@@ -51,4 +51,4 @@ class Item(Resource):
 class ItemList(Resource):
     def get(self):       
         items = list(map(lambda item: item.as_json(), ItemModel.query.all()))
-        return {'items': items }, 200
+        return {'items': items}, 200
