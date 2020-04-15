@@ -1,1 +1,4 @@
-appdata.db
+get_auths.py
+*.pyc
+__pycache__/
+*.db
