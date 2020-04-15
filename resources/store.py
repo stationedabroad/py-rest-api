@@ -32,4 +32,4 @@ class Store(Resource):
 
 class StoreList(Resource):
     def get(self):                
-        return {'stores': list(map(lambda store: store.as_json(), StoreModel.query.all))}, 200
+        return {'stores': list(map(lambda store: store.as_json(), StoreModel.query.all()))}, 200
