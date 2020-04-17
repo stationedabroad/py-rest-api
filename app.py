@@ -21,7 +21,6 @@ db.init_app(app)
 
 @app.before_first_request
 def create_tables():
-	if mode == 'local':
 		db.create_all()
 
 jwt = JWT(app, authenticate, identity) # /auth endpointx
