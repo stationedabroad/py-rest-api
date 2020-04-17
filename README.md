@@ -3,3 +3,4 @@
 - some basic verbs
 - tested using postman and curl
 - basic DB reads
+- Heroku config
