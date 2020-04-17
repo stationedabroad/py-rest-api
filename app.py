@@ -6,7 +6,7 @@ from security import authenticate, identity
 from resources.user import UserRegister
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
-from sqldb import db, db_uri
+from sqldb import db, db_uri, mode
 
 # port & debug
 # env variable: FLASK_RUN_PORT=5001
@@ -21,7 +21,8 @@ db.init_app(app)
 
 @app.before_first_request
 def create_tables():
-	db.create_all()
+	if mode == 'local':
+		db.create_all()
 
 jwt = JWT(app, authenticate, identity) # /auth endpointx
 
